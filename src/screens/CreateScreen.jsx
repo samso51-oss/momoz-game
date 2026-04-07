@@ -6,19 +6,20 @@ export default function CreateScreen({ onCreatePlayer, onCreateMomoz, playerExis
   const [step, setStep] = useState(playerExists ? 'momoz' : 'player')
 
   // Player creation
-  const [gender, setGender] = useState(null)
   const [avatar, setAvatar] = useState(null)
   const [pseudo, setPseudo] = useState('')
   const [pin, setPin] = useState('')
 
   // Momoz creation
   const [momozName, setMomozName] = useState('')
+  const [gender, setGender] = useState(null)
   const [hatching, setHatching] = useState(false)
   const [hatched, setHatched] = useState(false)
+  const [choosingGender, setChoosingGender] = useState(false)
   const [traits, setTraits] = useState([])
 
   const handleCreatePlayer = () => {
-    if (!pseudo || !pin || pin.length < 4 || !avatar || !gender) return
+    if (!pseudo || !pin || pin.length < 4 || !avatar) return
     onCreatePlayer(pseudo, avatar, pin)
     setStep('momoz')
   }
@@ -26,36 +27,24 @@ export default function CreateScreen({ onCreatePlayer, onCreateMomoz, playerExis
   const handleHatch = () => {
     if (!momozName.trim()) return
     setHatching(true)
-    const t = onCreateMomoz(momozName.trim(), gender || 'M')
-    setTraits(t)
     setTimeout(() => {
       setHatching(false)
-      setHatched(true)
+      setChoosingGender(true)
     }, 2000)
+  }
+
+  const handleGenderChoice = (g) => {
+    setGender(g)
+    const t = onCreateMomoz(momozName.trim(), g)
+    setTraits(t)
+    setChoosingGender(false)
+    setHatched(true)
   }
 
   if (step === 'player') {
     return (
       <div className="screen create-screen">
         <h2>Crée ton profil</h2>
-
-        <div className="section">
-          <p className="label">Genre de ton Momoz</p>
-          <div className="gender-btns">
-            <button
-              className={`btn btn-gender ${gender === 'M' ? 'active' : ''}`}
-              onClick={() => setGender('M')}
-            >
-              Garçon 💙
-            </button>
-            <button
-              className={`btn btn-gender ${gender === 'F' ? 'active' : ''}`}
-              onClick={() => setGender('F')}
-            >
-              Fille 💗
-            </button>
-          </div>
-        </div>
 
         <div className="section">
           <p className="label">Choisis ton avatar</p>
@@ -92,7 +81,7 @@ export default function CreateScreen({ onCreatePlayer, onCreateMomoz, playerExis
         <button
           className="btn btn-primary"
           onClick={handleCreatePlayer}
-          disabled={!pseudo || pin.length < 4 || !avatar || !gender}
+          disabled={!pseudo || pin.length < 4 || !avatar}
         >
           Créer !
         </button>
@@ -103,7 +92,7 @@ export default function CreateScreen({ onCreatePlayer, onCreateMomoz, playerExis
   // Step: momoz creation
   return (
     <div className="screen create-screen">
-      {!hatched ? (
+      {!hatched && !choosingGender ? (
         <>
           <h2>Ton nouvel œuf !</h2>
           <div className="egg-container">
@@ -132,6 +121,31 @@ export default function CreateScreen({ onCreatePlayer, onCreateMomoz, playerExis
             </>
           )}
           {hatching && <p className="hatching-text">Éclosion en cours...</p>}
+        </>
+      ) : choosingGender ? (
+        <>
+          <h2>C'est un garçon ou une fille ?</h2>
+          <div className="egg-container">
+            <img
+              src="/assets/momoz-oeuf.jpg"
+              alt="Œuf Momoz"
+              className="egg-img"
+            />
+          </div>
+          <div className="gender-btns">
+            <button
+              className="btn btn-gender"
+              onClick={() => handleGenderChoice('M')}
+            >
+              Garçon 💙
+            </button>
+            <button
+              className="btn btn-gender"
+              onClick={() => handleGenderChoice('F')}
+            >
+              Fille 💗
+            </button>
+          </div>
         </>
       ) : (
         <>

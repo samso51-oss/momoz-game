@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useMomoz } from './store/useMomoz.js'
 import LoginScreen from './screens/LoginScreen.jsx'
 import CreateScreen from './screens/CreateScreen.jsx'
@@ -28,6 +28,12 @@ export default function App() {
   })
 
   const [loggedIn, setLoggedIn] = useState(!!state.player && !!state.momoz)
+
+  useEffect(() => {
+    if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
+  }, [])
 
   const handleLogin = useCallback((pseudo, pin) => {
     const ok = login(pseudo, pin)

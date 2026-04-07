@@ -1,8 +1,27 @@
 import { useState, useMemo } from 'react'
 import { goodFood, junkFood } from '../data/foods.js'
 
+const GOOD_MESSAGES = [
+  'Miam ! Ton Momoz adore ça ! 😋',
+  'Trop bon ! Ton Momoz se régale ! 🥰',
+  'Super choix ! Ton Momoz est content ! ✨',
+  'Mmmh un délice ! Ton Momoz te remercie ! 🤩',
+]
+
+const JUNK_MESSAGES = [
+  'Mmmh délicieux... mais pas très sage 😅',
+  'Ton Momoz est ravi... mais sa santé trinque 🍔',
+  'Interdit mais tellement bon ! 😈',
+  'Un petit plaisir coupable ! 🤫',
+]
+
+function randomMsg(arr) {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
 export default function FoodScreen({ onFeed, onBack }) {
   const [fed, setFed] = useState(null)
+  const [message, setMessage] = useState(null)
 
   const allFoods = useMemo(() => {
     const foods = [
@@ -15,7 +34,18 @@ export default function FoodScreen({ onFeed, onBack }) {
   const handleFeed = (food) => {
     onFeed(food, food.isJunk)
     setFed(food.id)
-    setTimeout(() => onBack(), 1000)
+    setMessage(randomMsg(food.isJunk ? JUNK_MESSAGES : GOOD_MESSAGES))
+    setTimeout(() => onBack(), 1500)
+  }
+
+  if (message) {
+    return (
+      <div className="screen food-screen">
+        <div className="activity-message">
+          <p>{message}</p>
+        </div>
+      </div>
+    )
   }
 
   return (

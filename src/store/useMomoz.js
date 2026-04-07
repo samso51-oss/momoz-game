@@ -58,18 +58,39 @@ function computeDaysAlive(bornAt) {
   return Math.floor((Date.now() - bornAt) / (1000 * 60 * 60 * 24))
 }
 
+const GAUGE_NOTIF_MESSAGES = {
+  faim: '🍖 Ton Momoz a faim ! Donne-lui à manger !',
+  energie: '⚡ Ton Momoz est fatigué ! Fais-le dormir !',
+  bonheur: '😢 Ton Momoz s\'ennuie ! Joue avec lui !',
+  sante: '❤️ Ton Momoz ne va pas bien ! Soigne-le !',
+}
+
+function sendGaugeNotification(gauge) {
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+    new Notification('Momoz 🐣', { body: GAUGE_NOTIF_MESSAGES[gauge] })
+  }
+}
+
 function applyDecay(momoz) {
   const now = Date.now()
   const hours = (now - momoz.lastUpdated) / (1000 * 60 * 60)
   if (hours <= 0) return momoz
 
   const sickMult = momoz.isSick ? 2 : 1
+  const oldGauges = { ...momoz.gauges }
   const gauges = { ...momoz.gauges }
 
   for (const gauge of ['faim', 'energie', 'bonheur', 'sante']) {
     const traitMult = getTraitMultiplier(momoz.traits, gauge)
     const decay = DECAY_PER_HOUR[gauge] * hours * traitMult * sickMult
     gauges[gauge] = clamp(gauges[gauge] - decay)
+  }
+
+  // Notify when a gauge crosses below 50%
+  for (const gauge of ['faim', 'energie', 'bonheur', 'sante']) {
+    if (oldGauges[gauge] >= 50 && gauges[gauge] < 50) {
+      sendGaugeNotification(gauge)
+    }
   }
 
   // Sleep recovery
