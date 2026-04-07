@@ -1,0 +1,695 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(180deg, #F5A623 0%, #E8850A 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+#root {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100vh;
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 16px;
+  gap: 16px;
+}
+
+/* --- Buttons --- */
+.btn {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  border-radius: 20px;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.1s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #3ECFCF;
+  color: #fff;
+  width: 100%;
+  max-width: 300px;
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+}
+
+/* --- Input --- */
+.input {
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 300px;
+  background: rgba(255,255,255,0.9);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.input::placeholder {
+  color: #aaa;
+}
+
+.error {
+  color: #F44336;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.label {
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+/* --- Login --- */
+.login-screen {
+  justify-content: center;
+  gap: 24px;
+}
+
+.logo-container {
+  text-align: center;
+}
+
+.logo {
+  font-size: 48px;
+  color: #fff;
+  text-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+.subtitle {
+  color: rgba(255,255,255,0.85);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* --- Create Screen --- */
+.create-screen {
+  gap: 16px;
+}
+
+.create-screen h2 {
+  color: #fff;
+  font-size: 24px;
+}
+
+.section {
+  width: 100%;
+  text-align: center;
+}
+
+.gender-btns {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.btn-gender {
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  transition: all 0.2s;
+}
+
+.btn-gender.active {
+  border-color: #3ECFCF;
+  background: rgba(62,207,207,0.3);
+}
+
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  max-width: 300px;
+  margin: 8px auto 0;
+}
+
+.avatar-btn {
+  font-size: 28px;
+  padding: 8px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.avatar-btn.active {
+  border-color: #3ECFCF;
+  background: rgba(62,207,207,0.3);
+}
+
+/* --- Egg / Hatching --- */
+.egg-container {
+  text-align: center;
+}
+
+.egg-img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+.egg-idle {
+  animation: eggWobble 2s ease-in-out infinite;
+}
+
+.hatching {
+  animation: hatchShake 0.3s ease-in-out infinite;
+}
+
+.hatching-text {
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.traits-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.trait-badge {
+  background: rgba(62,207,207,0.3);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* --- Home Screen --- */
+.score-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  width: 100%;
+}
+
+.score-avatar {
+  font-size: 24px;
+}
+
+.score-pseudo {
+  color: #fff;
+  font-weight: 700;
+  flex: 1;
+}
+
+.score-points {
+  color: #fff;
+  font-weight: 800;
+}
+
+.momoz-sprite {
+  position: relative;
+  text-align: center;
+  margin: 8px 0;
+}
+
+.sprite-img {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+.idle-bounce {
+  animation: idleBounce 2s ease-in-out infinite;
+}
+
+.sleeping {
+  animation: sleepBreath 3s ease-in-out infinite;
+  opacity: 0.7;
+}
+
+.badge-sick,
+.badge-sleep {
+  position: absolute;
+  font-size: 32px;
+  top: -5px;
+  right: 10px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.momoz-info {
+  text-align: center;
+  color: #fff;
+}
+
+.momoz-info h2 {
+  font-size: 24px;
+  margin-bottom: 2px;
+}
+
+.momoz-info p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.status-sick {
+  color: #FFD54F;
+  font-weight: 700;
+}
+
+.status-sleeping {
+  color: #B3E5FC;
+  font-weight: 700;
+}
+
+.gauges {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gauge-bar {
+  width: 100%;
+}
+
+.gauge-label {
+  display: flex;
+  justify-content: space-between;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.gauge-track {
+  width: 100%;
+  height: 14px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.gauge-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+.action-bar {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.btn-action {
+  flex: 1;
+  background: #3ECFCF;
+  color: #fff;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  border-radius: 16px;
+  padding: 14px 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transition: transform 0.1s;
+}
+
+.btn-action:active {
+  transform: scale(0.95);
+}
+
+.btn-action:disabled {
+  opacity: 0.5;
+}
+
+.btn-heal {
+  background: #FFD54F;
+  color: #333;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  border: none;
+  border-radius: 16px;
+  padding: 12px 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  margin-top: 8px;
+}
+
+/* --- Food Screen --- */
+.screen-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.screen-header h2 {
+  color: #fff;
+  font-size: 20px;
+}
+
+.food-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+
+.food-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 4px;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  transition: transform 0.15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.food-btn.good {
+  background: rgba(76,175,80,0.25);
+}
+
+.food-btn.junk {
+  background: rgba(244,67,54,0.2);
+}
+
+.food-btn:active {
+  transform: scale(0.92);
+}
+
+.food-btn.fed {
+  animation: feedPop 0.5s ease;
+}
+
+.food-btn:disabled {
+  opacity: 0.5;
+}
+
+.food-emoji {
+  font-size: 28px;
+}
+
+.food-name {
+  font-size: 10px;
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.1;
+}
+
+/* --- Activity Screen --- */
+.activity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  width: 100%;
+}
+
+.activity-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 8px;
+  border: none;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.2);
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  transition: transform 0.15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.activity-btn:active {
+  transform: scale(0.94);
+}
+
+.activity-btn:disabled {
+  opacity: 0.5;
+}
+
+.activity-emoji {
+  font-size: 36px;
+}
+
+.activity-name {
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.activity-pts {
+  color: rgba(255,255,255,0.7);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.activity-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  gap: 20px;
+}
+
+.activity-message p {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 800;
+  text-align: center;
+}
+
+/* --- Profile Screen --- */
+.profile-card {
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  width: 100%;
+}
+
+.profile-avatar {
+  font-size: 48px;
+  margin-bottom: 8px;
+}
+
+.profile-card h3 {
+  color: #fff;
+  font-size: 22px;
+}
+
+.total-score {
+  color: #FFD54F;
+  font-weight: 800;
+  font-size: 18px;
+  margin-top: 4px;
+}
+
+.history-section {
+  width: 100%;
+}
+
+.history-section h3 {
+  color: #fff;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.empty-history {
+  color: rgba(255,255,255,0.6);
+  text-align: center;
+  font-style: italic;
+}
+
+.history-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.history-row {
+  display: flex;
+  gap: 8px;
+  background: rgba(255,255,255,0.15);
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.h-name { flex: 1; }
+.h-stage { width: 60px; text-align: center; }
+.h-days { width: 40px; text-align: center; }
+.h-pts { width: 60px; text-align: right; }
+
+/* --- Death Screen --- */
+.death-screen {
+  justify-content: center;
+  text-align: center;
+}
+
+.death-screen.natural {
+  background: linear-gradient(180deg, #81D4FA 0%, #4FC3F7 100%);
+}
+
+.death-screen.premature {
+  background: linear-gradient(180deg, #90A4AE 0%, #78909C 100%);
+}
+
+.death-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.death-content h2 {
+  color: #fff;
+  font-size: 24px;
+}
+
+.confetti {
+  font-size: 40px;
+  animation: confettiDrop 2s ease infinite;
+}
+
+.tear {
+  font-size: 60px;
+  animation: tearDrop 2s ease-in-out infinite;
+}
+
+.death-bonus {
+  color: #FFD54F;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.death-loss {
+  color: #FFCDD2;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.death-content p {
+  color: rgba(255,255,255,0.9);
+  font-weight: 600;
+}
+
+/* --- Animations --- */
+@keyframes idleBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes sleepBreath {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+@keyframes eggWobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+@keyframes hatchShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes feedPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+@keyframes confettiDrop {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-10px) rotate(5deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+@keyframes tearDrop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
