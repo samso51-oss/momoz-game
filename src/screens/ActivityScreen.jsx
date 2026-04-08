@@ -53,6 +53,30 @@ export default function ActivityScreen({ onDoActivity, onBack, isSleeping, trait
   const [activeGame, setActiveGame] = useState(null)
   const [failMessage, setFailMessage] = useState(null)
   const pendingActivityRef = useRef(null)
+  const backTimerRef = useRef(null)
+
+  // Quand lastGaugeDelta arrive, construire le message avec les vraies valeurs
+  useEffect(() => {
+    if (lastGaugeDelta && pendingActivityRef.current) {
+      const { activityId } = pendingActivityRef.current
+      setMessage(getPersonalizedActivityMessage(activityId, traits, lastGaugeDelta) || FUN_MESSAGES[activityId] || 'Super !')
+      pendingActivityRef.current = null
+    }
+  }, [lastGaugeDelta, traits])
+
+  // Auto-fermeture de secours à 5000ms (sauf dormir)
+  useEffect(() => {
+    if (backTimerRef.current) clearTimeout(backTimerRef.current)
+    if (message && !message.includes('dormir')) {
+      backTimerRef.current = setTimeout(() => onBack(), 5000)
+    }
+    return () => { if (backTimerRef.current) clearTimeout(backTimerRef.current) }
+  }, [message, onBack])
+
+  // Cleanup
+  useEffect(() => {
+    return () => { if (backTimerRef.current) clearTimeout(backTimerRef.current) }
+  }, [])
 
   const handleActivity = (activity) => {
     const GameComponent = GAME_MAP[activity.id]
@@ -67,15 +91,6 @@ export default function ActivityScreen({ onDoActivity, onBack, isSleeping, trait
     onDoActivity(activity)
     pendingActivityRef.current = { activityId: activity.id }
   }
-
-  // Quand lastGaugeDelta arrive, construire le message avec les vraies valeurs
-  useEffect(() => {
-    if (lastGaugeDelta && pendingActivityRef.current) {
-      const { activityId } = pendingActivityRef.current
-      setMessage(getPersonalizedActivityMessage(activityId, traits, lastGaugeDelta) || FUN_MESSAGES[activityId] || 'Super !')
-      pendingActivityRef.current = null
-    }
-  }, [lastGaugeDelta, traits])
 
   const handleGameSuccess = () => {
     const activity = activeGame.activity
@@ -113,13 +128,6 @@ export default function ActivityScreen({ onDoActivity, onBack, isSleeping, trait
       </div>
     )
   }
-
-  // Auto-fermeture de secours à 5000ms (sauf dormir)
-  useEffect(() => {
-    if (!message || message.includes('dormir')) return
-    const timer = setTimeout(() => onBack(), 5000)
-    return () => clearTimeout(timer)
-  }, [message, onBack])
 
   // Success message
   if (message) {
