@@ -9,7 +9,7 @@ export default function GaugeBar({ label, value, emoji, delta }) {
   useEffect(() => {
     if (delta != null && delta !== 0) {
       setShowDelta(true)
-      const timer = setTimeout(() => setShowDelta(false), 2000)
+      const timer = setTimeout(() => setShowDelta(false), 4500)
       return () => clearTimeout(timer)
     } else {
       setShowDelta(false)

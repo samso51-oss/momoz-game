@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { activities } from '../data/activities.js'
 import RunnerGame from '../components/RunnerGame.jsx'
 import SimonGame from '../components/minigames/SimonGame.jsx'
@@ -52,6 +52,7 @@ export default function ActivityScreen({ onDoActivity, onBack, isSleeping, trait
   const [message, setMessage] = useState(null)
   const [activeGame, setActiveGame] = useState(null)
   const [failMessage, setFailMessage] = useState(null)
+  const pendingActivityRef = useRef(null)
 
   const handleActivity = (activity) => {
     const GameComponent = GAME_MAP[activity.id]
@@ -64,11 +65,17 @@ export default function ActivityScreen({ onDoActivity, onBack, isSleeping, trait
 
   const applyActivity = (activity) => {
     onDoActivity(activity)
-    setMessage(getPersonalizedActivityMessage(activity.id, traits, lastGaugeDelta) || FUN_MESSAGES[activity.id] || 'Super !')
-    if (activity.id !== 'dormir') {
-      setTimeout(() => onBack(), 1500)
-    }
+    pendingActivityRef.current = { activityId: activity.id }
   }
+
+  // Quand lastGaugeDelta arrive, construire le message avec les vraies valeurs
+  useEffect(() => {
+    if (lastGaugeDelta && pendingActivityRef.current) {
+      const { activityId } = pendingActivityRef.current
+      setMessage(getPersonalizedActivityMessage(activityId, traits, lastGaugeDelta) || FUN_MESSAGES[activityId] || 'Super !')
+      pendingActivityRef.current = null
+    }
+  }, [lastGaugeDelta, traits])
 
   const handleGameSuccess = () => {
     const activity = activeGame.activity
@@ -107,14 +114,28 @@ export default function ActivityScreen({ onDoActivity, onBack, isSleeping, trait
     )
   }
 
+  // Auto-fermeture de secours à 5000ms (sauf dormir)
+  useEffect(() => {
+    if (!message || message.includes('dormir')) return
+    const timer = setTimeout(() => onBack(), 5000)
+    return () => clearTimeout(timer)
+  }, [message, onBack])
+
   // Success message
   if (message) {
+    const isDormir = message.includes('dormir')
     return (
-      <div className="screen activity-screen">
+      <div
+        className="screen activity-screen"
+        onClick={isDormir ? undefined : onBack}
+        style={isDormir ? undefined : { cursor: 'pointer', justifyContent: 'center' }}
+      >
         <div className="activity-message">
           <p>{message}</p>
-          {message.includes('dormir') && (
+          {isDormir ? (
             <button className="btn btn-primary" onClick={onBack}>OK</button>
+          ) : (
+            <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Appuie pour continuer</p>
           )}
         </div>
       </div>

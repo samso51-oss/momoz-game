@@ -39,7 +39,7 @@ export default function App() {
   // Auto-clear gauge deltas after 2500ms
   useEffect(() => {
     if (!state.lastGaugeDelta) return
-    const timer = setTimeout(() => clearGaugeDelta(), 2500)
+    const timer = setTimeout(() => clearGaugeDelta(), 5000)
     return () => clearTimeout(timer)
   }, [state.lastGaugeDelta, clearGaugeDelta])
 

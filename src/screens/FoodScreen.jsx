@@ -27,6 +27,7 @@ export default function FoodScreen({ onFeed, onBack, traits = [], lastGaugeDelta
   const [tapProgress, setTapProgress] = useState(0)
   const [bouncing, setBouncing] = useState(false)
   const idleTimerRef = useRef(null)
+  const pendingFoodRef = useRef(null)
 
   const allFoods = useMemo(() => {
     const foods = [
@@ -68,19 +69,39 @@ export default function FoodScreen({ onFeed, onBack, traits = [], lastGaugeDelta
 
     if (next >= TAPS_REQUIRED) {
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
-      onFeed(eating, eating.isJunk)
-      setFed(eating.id)
+      const foodData = { ...eating }
+      onFeed(foodData, foodData.isJunk)
+      setFed(foodData.id)
       setEating(null)
-      setMessage(getPersonalizedFoodMessage(eating.isJunk, traits, lastGaugeDelta))
-      setTimeout(() => onBack(), 1500)
+      pendingFoodRef.current = { isJunk: foodData.isJunk }
     }
   }
 
+  // Quand lastGaugeDelta arrive, construire le message avec les vraies valeurs
+  useEffect(() => {
+    if (lastGaugeDelta && pendingFoodRef.current) {
+      setMessage(getPersonalizedFoodMessage(pendingFoodRef.current.isJunk, traits, lastGaugeDelta))
+      pendingFoodRef.current = null
+    }
+  }, [lastGaugeDelta, traits])
+
+  // Auto-fermeture de secours à 5000ms
+  useEffect(() => {
+    if (!message) return
+    const timer = setTimeout(() => onBack(), 5000)
+    return () => clearTimeout(timer)
+  }, [message, onBack])
+
   if (message) {
     return (
-      <div className="screen food-screen">
+      <div
+        className="screen food-screen"
+        onClick={onBack}
+        style={{ cursor: 'pointer', justifyContent: 'center' }}
+      >
         <div className="activity-message">
           <p>{message}</p>
+          <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>Appuie pour continuer</p>
         </div>
       </div>
     )
