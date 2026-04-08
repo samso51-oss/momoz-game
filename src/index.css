@@ -217,6 +217,21 @@ body {
   animation: hatchShake 0.3s ease-in-out infinite;
 }
 
+.egg-cracked-1 {
+  filter: brightness(1.05);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2), inset 0 0 20px rgba(255,255,255,0.3);
+}
+
+.egg-cracked-2 {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2), inset 0 0 40px rgba(255,255,255,0.5);
+  animation: eggWobble 0.8s ease-in-out infinite;
+}
+
+.egg-disabled {
+  opacity: 0.6;
+}
+
 .hatching-text {
   color: #fff;
   font-weight: 700;

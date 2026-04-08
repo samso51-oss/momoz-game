@@ -17,6 +17,7 @@ export default function CreateScreen({ onCreatePlayer, onCreateMomoz, playerExis
   const [hatched, setHatched] = useState(false)
   const [choosingGender, setChoosingGender] = useState(false)
   const [traits, setTraits] = useState([])
+  const [tapCount, setTapCount] = useState(0)
 
   const handleCreatePlayer = () => {
     if (!pseudo || !pin || pin.length < 4 || !avatar) return
@@ -24,13 +25,17 @@ export default function CreateScreen({ onCreatePlayer, onCreateMomoz, playerExis
     setStep('momoz')
   }
 
-  const handleHatch = () => {
-    if (!momozName.trim()) return
-    setHatching(true)
-    setTimeout(() => {
-      setHatching(false)
-      setChoosingGender(true)
-    }, 2000)
+  const handleEggTap = () => {
+    if (!momozName.trim() || hatching) return
+    const next = tapCount + 1
+    setTapCount(next)
+    if (next >= 3) {
+      setHatching(true)
+      setTimeout(() => {
+        setHatching(false)
+        setChoosingGender(true)
+      }, 2000)
+    }
   }
 
   const handleGenderChoice = (g) => {
@@ -95,30 +100,30 @@ export default function CreateScreen({ onCreatePlayer, onCreateMomoz, playerExis
       {!hatched && !choosingGender ? (
         <>
           <h2>Ton nouvel œuf !</h2>
+          {!hatching && (
+            <input
+              type="text"
+              placeholder="Prénom de ton Momoz"
+              value={momozName}
+              onChange={(e) => setMomozName(e.target.value)}
+              className="input"
+            />
+          )}
           <div className="egg-container">
             <img
               src="/assets/momoz-oeuf.jpg"
               alt="Œuf Momoz"
-              className={`egg-img ${hatching ? 'hatching' : 'egg-idle'}`}
+              className={`egg-img ${hatching ? 'hatching' : 'egg-idle'} ${tapCount > 0 ? 'egg-cracked-' + tapCount : ''} ${!momozName.trim() ? 'egg-disabled' : ''}`}
+              onClick={handleEggTap}
+              style={{ cursor: momozName.trim() && !hatching ? 'pointer' : 'not-allowed' }}
             />
           </div>
           {!hatching && (
-            <>
-              <input
-                type="text"
-                placeholder="Prénom de ton Momoz"
-                value={momozName}
-                onChange={(e) => setMomozName(e.target.value)}
-                className="input"
-              />
-              <button
-                className="btn btn-primary"
-                onClick={handleHatch}
-                disabled={!momozName.trim()}
-              >
-                Faire éclore ! 🐣
-              </button>
-            </>
+            <p className="tap-hint" style={{ color: '#fff', fontWeight: 700, fontSize: 16 }}>
+              {!momozName.trim()
+                ? 'Entre un prénom puis tape sur l\'œuf !'
+                : `Tape l'œuf ! ${tapCount}/3`}
+            </p>
           )}
           {hatching && <p className="hatching-text">Éclosion en cours...</p>}
         </>

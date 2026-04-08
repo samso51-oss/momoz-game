@@ -18,6 +18,7 @@ export default function App() {
     doActivity,
     handleDeath,
     refreshState,
+    getGauges,
   } = useMomoz()
 
   const [screen, setScreen] = useState(() => {
@@ -111,6 +112,7 @@ export default function App() {
         <FoodScreen
           onFeed={feedMomoz}
           onBack={() => setScreen('home')}
+          getGauges={getGauges}
         />
       </div>
     )
@@ -123,6 +125,7 @@ export default function App() {
           onDoActivity={doActivity}
           onBack={() => setScreen('home')}
           isSleeping={state.momoz?.isSleeping}
+          getGauges={getGauges}
         />
       </div>
     )

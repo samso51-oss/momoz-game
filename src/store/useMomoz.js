@@ -246,12 +246,17 @@ export function useMomoz() {
       const healMult = getHealMultiplier(m.traits)
 
       if (isJunk) {
-        m.gauges.bonheur = clamp(m.gauges.bonheur + 20 * healMult)
+        m.gauges.bonheur = clamp(m.gauges.bonheur + 30 * healMult)
         m.gauges.faim = clamp(m.gauges.faim + 10 * healMult)
         m.gauges.sante = clamp(m.gauges.sante - 15)
         m.sessionScore += 1
         m.junkFoodStreak += 1
         m.goodFoodStreak = 0
+
+        // Gourmand: +3 bonheur supplémentaire sur junk food
+        if (m.traits.includes('Gourmand')) {
+          m.gauges.bonheur = clamp(m.gauges.bonheur + 3)
+        }
 
         if (m.junkFoodStreak >= 3 && !m.isSick) {
           m.isSick = true
@@ -262,6 +267,11 @@ export function useMomoz() {
         m.gauges.sante = clamp(m.gauges.sante + 10 * healMult)
         m.sessionScore += 5
         m.junkFoodStreak = 0
+
+        // Aliments sains : bonheur -10 (sauf Têtu qui ne change pas)
+        if (!m.traits.includes('Tetu')) {
+          m.gauges.bonheur = clamp(m.gauges.bonheur - 10)
+        }
 
         if (m.isSick) {
           m.goodFoodStreak = (m.goodFoodStreak || 0) + 1
@@ -291,6 +301,26 @@ export function useMomoz() {
       for (const [gauge, val] of Object.entries(activity.effects)) {
         const applied = val > 0 ? val * healMult : val
         m.gauges[gauge] = clamp((m.gauges[gauge] || 0) + applied)
+      }
+
+      // Énergique: +5 bonheur sur courir/danser
+      if (m.traits.includes('Energique') && (activity.id === 'courir' || activity.id === 'danser')) {
+        m.gauges.bonheur = clamp(m.gauges.bonheur + 5)
+      }
+
+      // Paresseux: -10 bonheur sur courir
+      if (m.traits.includes('Paresseux') && activity.id === 'courir') {
+        m.gauges.bonheur = clamp(m.gauges.bonheur - 10)
+      }
+
+      // Câlin: +5 bonheur sur câlin
+      if (m.traits.includes('Calin') && activity.id === 'calin') {
+        m.gauges.bonheur = clamp(m.gauges.bonheur + 5)
+      }
+
+      // Curieux: +10 bonheur sur lire/dessiner
+      if (m.traits.includes('Curieux') && (activity.id === 'lire' || activity.id === 'dessiner')) {
+        m.gauges.bonheur = clamp(m.gauges.bonheur + 10)
       }
 
       let pts = activity.points
@@ -364,6 +394,11 @@ export function useMomoz() {
     })
   }, [setState])
 
+  const getGauges = useCallback(() => {
+    if (!state.momoz) return null
+    return { ...state.momoz.gauges }
+  }, [state])
+
   return {
     state,
     createPlayer,
@@ -374,6 +409,7 @@ export function useMomoz() {
     handleDeath,
     refreshState,
     computeDaysAlive,
+    getGauges,
     STAGE_NAMES,
   }
 }
