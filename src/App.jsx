@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useMomoz } from './store/useMomoz.js'
 import LoginScreen from './screens/LoginScreen.jsx'
 import CreateScreen from './screens/CreateScreen.jsx'
@@ -18,7 +18,7 @@ export default function App() {
     doActivity,
     handleDeath,
     refreshState,
-    getGauges,
+    clearGaugeDelta,
   } = useMomoz()
 
   const [screen, setScreen] = useState(() => {
@@ -29,9 +29,6 @@ export default function App() {
   })
 
   const [loggedIn, setLoggedIn] = useState(!!state.player && !!state.momoz)
-  const [gaugeDeltas, setGaugeDeltas] = useState(null)
-  const gaugesSnapshotRef = useRef(null)
-  const deltasTimerRef = useRef(null)
 
   useEffect(() => {
     if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
@@ -39,10 +36,12 @@ export default function App() {
     }
   }, [])
 
-  // Cleanup deltas timer
+  // Auto-clear gauge deltas after 2500ms
   useEffect(() => {
-    return () => { if (deltasTimerRef.current) clearTimeout(deltasTimerRef.current) }
-  }, [])
+    if (!state.lastGaugeDelta) return
+    const timer = setTimeout(() => clearGaugeDelta(), 2500)
+    return () => clearTimeout(timer)
+  }, [state.lastGaugeDelta, clearGaugeDelta])
 
   const handleLogin = useCallback((pseudo, pin) => {
     const ok = login(pseudo, pin)
@@ -71,31 +70,12 @@ export default function App() {
   }, [handleDeath])
 
   const navigate = useCallback((s) => {
-    // Snapshot gauges before navigating to food/activity
-    if (s === 'food' || s === 'activity') {
-      gaugesSnapshotRef.current = getGauges()
-    }
     setScreen(s)
-  }, [getGauges])
+  }, [])
 
   const handleBack = useCallback(() => {
-    // Calculate deltas when coming back from food/activity
-    if (gaugesSnapshotRef.current) {
-      const after = getGauges()
-      const before = gaugesSnapshotRef.current
-      if (after && before) {
-        const deltas = {}
-        for (const g of ['faim', 'energie', 'bonheur', 'sante']) {
-          deltas[g] = Math.round(after[g] - before[g])
-        }
-        setGaugeDeltas(deltas)
-        if (deltasTimerRef.current) clearTimeout(deltasTimerRef.current)
-        deltasTimerRef.current = setTimeout(() => setGaugeDeltas(null), 2500)
-      }
-      gaugesSnapshotRef.current = null
-    }
     setScreen('home')
-  }, [getGauges])
+  }, [])
 
   // Death check
   if (loggedIn && state.momoz?._deathType && screen !== 'death') {
@@ -179,7 +159,7 @@ export default function App() {
         state={state}
         refreshState={refreshState}
         onNavigate={navigate}
-        gaugeDeltas={gaugeDeltas}
+        gaugeDeltas={state.lastGaugeDelta}
       />
     </div>
   )

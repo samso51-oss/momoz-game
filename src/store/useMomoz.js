@@ -153,7 +153,7 @@ function checkDeath(momoz) {
 export function useMomoz() {
   const [state, _setState] = useState(() => {
     const saved = loadState()
-    if (!saved) return { player: null, momoz: null }
+    if (!saved) return { player: null, momoz: null, lastGaugeDelta: null }
 
     if (saved.momoz) {
       saved.momoz = applyDecay(saved.momoz)
@@ -243,6 +243,7 @@ export function useMomoz() {
     setState((prev) => {
       if (!prev.momoz || prev.momoz.isSleeping) return prev
       const m = { ...prev.momoz, gauges: { ...prev.momoz.gauges } }
+      const gaugesBefore = { ...m.gauges }
 
       if (isJunk) {
         // Malbouffe — base
@@ -301,7 +302,13 @@ export function useMomoz() {
 
       m.lastUpdated = Date.now()
       const p = { ...prev.player, totalScore: prev.player.totalScore + (isJunk ? 1 : 5) }
-      return { ...prev, momoz: m, player: p }
+      const delta = {
+        faim: Math.round(m.gauges.faim - gaugesBefore.faim),
+        energie: Math.round(m.gauges.energie - gaugesBefore.energie),
+        bonheur: Math.round(m.gauges.bonheur - gaugesBefore.bonheur),
+        sante: Math.round(m.gauges.sante - gaugesBefore.sante),
+      }
+      return { ...prev, momoz: m, player: p, lastGaugeDelta: delta }
     })
   }, [setState])
 
@@ -309,6 +316,7 @@ export function useMomoz() {
     setState((prev) => {
       if (!prev.momoz || prev.momoz.isSleeping) return prev
       const m = { ...prev.momoz, gauges: { ...prev.momoz.gauges } }
+      const gaugesBefore = { ...m.gauges }
       const healMult = getHealMultiplier(m.traits)
 
       // Apply base effects
@@ -382,7 +390,13 @@ export function useMomoz() {
 
       m.lastUpdated = Date.now()
       const p = { ...prev.player, totalScore: prev.player.totalScore + pts }
-      return { ...prev, momoz: m, player: p }
+      const delta = {
+        faim: Math.round(m.gauges.faim - gaugesBefore.faim),
+        energie: Math.round(m.gauges.energie - gaugesBefore.energie),
+        bonheur: Math.round(m.gauges.bonheur - gaugesBefore.bonheur),
+        sante: Math.round(m.gauges.sante - gaugesBefore.sante),
+      }
+      return { ...prev, momoz: m, player: p, lastGaugeDelta: delta }
     })
   }, [setState])
 
@@ -432,6 +446,10 @@ export function useMomoz() {
     return { ...state.momoz.gauges }
   }, [state])
 
+  const clearGaugeDelta = useCallback(() => {
+    setState((prev) => ({ ...prev, lastGaugeDelta: null }))
+  }, [setState])
+
   return {
     state,
     createPlayer,
@@ -443,6 +461,7 @@ export function useMomoz() {
     refreshState,
     computeDaysAlive,
     getGauges,
+    clearGaugeDelta,
     STAGE_NAMES,
   }
 }
