@@ -1,18 +1,29 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { goodFood, junkFood } from '../data/foods.js'
 
+function formatDelta(delta) {
+  if (!delta) return ''
+  const LABELS = { faim: '🍖', energie: '⚡', bonheur: '😊', sante: '❤️' }
+  const parts = Object.entries(delta)
+    .filter(([, v]) => v !== 0)
+    .map(([k, v]) => `${LABELS[k]} ${v > 0 ? '+' : ''}${v}`)
+  return parts.length ? '\n' + parts.join('  ') : ''
+}
+
 function getPersonalizedFoodMessage(isJunk, traits, delta) {
+  let base
   if (!isJunk) {
-    if (traits.includes('Tetu')) return 'Bof... il mange quand même. 😒'
-    if (traits.includes('Gourmand')) return `Il fait la grimace mais avale quand même. 😤 (bonheur -${Math.abs(delta?.bonheur || 5)})`
-    if (delta && delta.bonheur <= -10) return 'Vraiment pas fan... mais c est bon pour lui ! 🥦'
-    return 'Mange bien ! Santé au top 💪'
+    if (traits.includes('Tetu')) base = 'Bof... il mange quand même. 😒'
+    else if (traits.includes('Gourmand')) base = 'Il fait la grimace mais avale quand même. 😤'
+    else if (delta && delta.bonheur <= -10) base = 'Vraiment pas fan... mais c\'est bon pour lui ! 🥦'
+    else base = 'Mange bien ! Santé au top 💪'
   } else {
-    if (traits.includes('Gourmand')) return `TROP BON ! Son bonheur explose ! 🤩 +${delta?.bonheur || 25} bonheur !`
-    if (traits.includes('Tetu')) return `Personne peut l en empêcher. 😈 +${delta?.bonheur || 25} bonheur !`
-    if (delta && delta.bonheur >= 25) return 'Aux anges ! Mais la santé... 🍔💥'
-    return 'Un petit plaisir coupable 😅'
+    if (traits.includes('Gourmand')) base = 'TROP BON ! Son bonheur explose ! 🤩'
+    else if (traits.includes('Tetu')) base = 'Personne peut l\'en empêcher. 😈'
+    else if (delta && delta.bonheur >= 25) base = 'Aux anges ! Mais la santé... 🍔💥'
+    else base = 'Un petit plaisir coupable 😅'
   }
+  return base + formatDelta(delta)
 }
 
 const TAPS_REQUIRED = 5

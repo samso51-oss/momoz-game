@@ -20,21 +20,32 @@ const FUN_MESSAGES = {
   dessiner: 'Quel artiste ! 🎨',
 }
 
+function formatDelta(delta) {
+  if (!delta) return ''
+  const LABELS = { faim: '🍖', energie: '⚡', bonheur: '😊', sante: '❤️' }
+  const parts = Object.entries(delta)
+    .filter(([, v]) => v !== 0)
+    .map(([k, v]) => `${LABELS[k]} ${v > 0 ? '+' : ''}${v}`)
+  return parts.length ? '\n' + parts.join('  ') : ''
+}
+
 function getPersonalizedActivityMessage(activityId, traits, delta) {
-  if (activityId === 'jouer' && traits.includes('Curieux')) return 'Il joue et explore partout ! 🎮🔍'
-  if (activityId === 'jouer' && traits.includes('Calin')) return `Il préfèrerait un câlin... 🎮😕 (bonheur ${delta?.bonheur})`
-  if (activityId === 'dormir' && traits.includes('Paresseux')) return `Son activité préférée ! 😴💤 +${delta?.bonheur} bonheur`
-  if (activityId === 'dormir' && traits.includes('Energique')) return 'Il dort mal, trop d energie ! ⚡😴'
-  if (activityId === 'courir' && traits.includes('Energique')) return `Il adore courir ! 🏃⚡ +${delta?.bonheur} bonheur`
-  if (activityId === 'courir' && traits.includes('Paresseux')) return `Il déteste ça... 🏃😩 (bonheur ${delta?.bonheur})`
-  if (activityId === 'courir' && traits.includes('Curieux')) return 'Pas son truc, trop répétitif. 🏃🥱'
-  if (activityId === 'danser' && traits.includes('Energique')) return 'Il danse comme une fusée ! 💃⚡'
-  if (activityId === 'danser' && traits.includes('Paresseux')) return 'Il traîne les pieds... 💃😒'
-  if (activityId === 'calin' && traits.includes('Calin')) return `Un énorme câlin ! Trop de bonheur ! 🤗💕 +${delta?.bonheur} bonheur`
-  if (activityId === 'lire' && traits.includes('Curieux')) return `Il dévore le livre ! 📚🔍 +${delta?.bonheur} bonheur`
-  if (activityId === 'dessiner' && traits.includes('Curieux')) return `Un chef-d oeuvre ! 🎨✨ +${delta?.bonheur} bonheur`
-  if (activityId === 'laver' && traits.includes('Tetu')) return 'Il résiste mais finit par obéir. 🛁😤'
-  return null
+  let base = null
+  if (activityId === 'jouer' && traits.includes('Curieux')) base = 'Il joue et explore partout ! 🎮🔍'
+  else if (activityId === 'jouer' && traits.includes('Calin')) base = 'Il préfèrerait un câlin... 🎮😕'
+  else if (activityId === 'dormir' && traits.includes('Paresseux')) base = 'Son activité préférée ! 😴💤'
+  else if (activityId === 'dormir' && traits.includes('Energique')) base = 'Il dort mal, trop d energie ! ⚡😴'
+  else if (activityId === 'courir' && traits.includes('Energique')) base = 'Il adore courir ! 🏃⚡'
+  else if (activityId === 'courir' && traits.includes('Paresseux')) base = 'Il déteste ça... 🏃😩'
+  else if (activityId === 'courir' && traits.includes('Curieux')) base = 'Pas son truc, trop répétitif. 🏃🥱'
+  else if (activityId === 'danser' && traits.includes('Energique')) base = 'Il danse comme une fusée ! 💃⚡'
+  else if (activityId === 'danser' && traits.includes('Paresseux')) base = 'Il traîne les pieds... 💃😒'
+  else if (activityId === 'calin' && traits.includes('Calin')) base = 'Un énorme câlin ! Trop de bonheur ! 🤗💕'
+  else if (activityId === 'lire' && traits.includes('Curieux')) base = 'Il dévore le livre ! 📚🔍'
+  else if (activityId === 'dessiner' && traits.includes('Curieux')) base = 'Un chef-d oeuvre ! 🎨✨'
+  else if (activityId === 'laver' && traits.includes('Tetu')) base = 'Il résiste mais finit par obéir. 🛁😤'
+  if (!base) return null
+  return base + formatDelta(delta)
 }
 
 const GAME_MAP = {
@@ -59,7 +70,7 @@ export default function ActivityScreen({ onDoActivity, onBack, isSleeping, trait
   useEffect(() => {
     if (lastGaugeDelta && pendingActivityRef.current) {
       const { activityId } = pendingActivityRef.current
-      setMessage(getPersonalizedActivityMessage(activityId, traits, lastGaugeDelta) || FUN_MESSAGES[activityId] || 'Super !')
+      setMessage((getPersonalizedActivityMessage(activityId, traits, lastGaugeDelta) || (FUN_MESSAGES[activityId] || 'Super !') + formatDelta(lastGaugeDelta)))
       pendingActivityRef.current = null
     }
   }, [lastGaugeDelta, traits])
