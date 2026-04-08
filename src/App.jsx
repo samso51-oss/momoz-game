@@ -124,6 +124,8 @@ export default function App() {
         <FoodScreen
           onFeed={feedMomoz}
           onBack={handleBack}
+          traits={state.momoz?.traits || []}
+          lastGaugeDelta={state.lastGaugeDelta}
         />
       </div>
     )
@@ -136,6 +138,8 @@ export default function App() {
           onDoActivity={doActivity}
           onBack={handleBack}
           isSleeping={state.momoz?.isSleeping}
+          traits={state.momoz?.traits || []}
+          lastGaugeDelta={state.lastGaugeDelta}
         />
       </div>
     )

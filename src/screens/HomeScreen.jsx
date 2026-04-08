@@ -36,6 +36,13 @@ export default function HomeScreen({ state, refreshState, onNavigate, gaugeDelta
       <div className="momoz-info">
         <h2>{momoz.name}</h2>
         <p>{STAGE_NAMES[momoz.stage]} &middot; Jour {daysAlive + 1}</p>
+        {momoz.traits && momoz.traits.length > 0 && (
+          <div className="traits-list">
+            {momoz.traits.map((t) => (
+              <span key={t} className="trait-badge">{t}</span>
+            ))}
+          </div>
+        )}
         {momoz.isSleeping && <p className="status-sleeping">💤 En train de dormir...</p>}
         {momoz.isSick && <p className="status-sick">🤒 Malade !</p>}
       </div>

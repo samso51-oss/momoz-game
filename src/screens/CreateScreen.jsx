@@ -1,12 +1,9 @@
 import { useState } from 'react'
 
-const AVATARS = ['🐱', '🐶', '🦊', '🐸', '🦁', '🐯', '🐼', '🐨', '🦋', '🌟']
-
 export default function CreateScreen({ onCreatePlayer, onCreateMomoz, playerExists }) {
   const [step, setStep] = useState(playerExists ? 'momoz' : 'player')
 
   // Player creation
-  const [avatar, setAvatar] = useState(null)
   const [pseudo, setPseudo] = useState('')
   const [pin, setPin] = useState('')
 
@@ -20,8 +17,8 @@ export default function CreateScreen({ onCreatePlayer, onCreateMomoz, playerExis
   const [tapCount, setTapCount] = useState(0)
 
   const handleCreatePlayer = () => {
-    if (!pseudo || !pin || pin.length < 4 || !avatar) return
-    onCreatePlayer(pseudo, avatar, pin)
+    if (!pseudo || !pin || pin.length < 4) return
+    onCreatePlayer(pseudo, '🐣', pin)
     setStep('momoz')
   }
 
@@ -51,21 +48,6 @@ export default function CreateScreen({ onCreatePlayer, onCreateMomoz, playerExis
       <div className="screen create-screen">
         <h2>Crée ton profil</h2>
 
-        <div className="section">
-          <p className="label">Choisis ton avatar</p>
-          <div className="avatar-grid">
-            {AVATARS.map((a) => (
-              <button
-                key={a}
-                className={`avatar-btn ${avatar === a ? 'active' : ''}`}
-                onClick={() => setAvatar(a)}
-              >
-                {a}
-              </button>
-            ))}
-          </div>
-        </div>
-
         <input
           type="text"
           placeholder="Pseudo"
@@ -86,7 +68,7 @@ export default function CreateScreen({ onCreatePlayer, onCreateMomoz, playerExis
         <button
           className="btn btn-primary"
           onClick={handleCreatePlayer}
-          disabled={!pseudo || pin.length < 4 || !avatar}
+          disabled={!pseudo || pin.length < 4}
         >
           Créer !
         </button>

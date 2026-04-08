@@ -1,28 +1,24 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { goodFood, junkFood } from '../data/foods.js'
 
-const GOOD_MESSAGES = [
-  'Miam ! Ton Momoz adore ca ! 😋',
-  'Trop bon ! Ton Momoz se regale ! 🥰',
-  'Super choix ! Ton Momoz est content ! ✨',
-  'Mmmh un delice ! Ton Momoz te remercie ! 🤩',
-]
-
-const JUNK_MESSAGES = [
-  'Mmmh delicieux... mais pas tres sage 😅',
-  'Ton Momoz est ravi... mais sa sante trinque 🍔',
-  'Interdit mais tellement bon ! 😈',
-  'Un petit plaisir coupable ! 🤫',
-]
-
-function randomMsg(arr) {
-  return arr[Math.floor(Math.random() * arr.length)]
+function getPersonalizedFoodMessage(isJunk, traits, delta) {
+  if (!isJunk) {
+    if (traits.includes('Tetu')) return 'Bof... il mange quand même. 😒'
+    if (traits.includes('Gourmand')) return `Il fait la grimace mais avale quand même. 😤 (bonheur -${Math.abs(delta?.bonheur || 5)})`
+    if (delta && delta.bonheur <= -10) return 'Vraiment pas fan... mais c est bon pour lui ! 🥦'
+    return 'Mange bien ! Santé au top 💪'
+  } else {
+    if (traits.includes('Gourmand')) return `TROP BON ! Son bonheur explose ! 🤩 +${delta?.bonheur || 25} bonheur !`
+    if (traits.includes('Tetu')) return `Personne peut l en empêcher. 😈 +${delta?.bonheur || 25} bonheur !`
+    if (delta && delta.bonheur >= 25) return 'Aux anges ! Mais la santé... 🍔💥'
+    return 'Un petit plaisir coupable 😅'
+  }
 }
 
 const TAPS_REQUIRED = 5
 const IDLE_TIMEOUT = 5000
 
-export default function FoodScreen({ onFeed, onBack }) {
+export default function FoodScreen({ onFeed, onBack, traits = [], lastGaugeDelta }) {
   const [fed, setFed] = useState(null)
   const [message, setMessage] = useState(null)
 
@@ -75,7 +71,7 @@ export default function FoodScreen({ onFeed, onBack }) {
       onFeed(eating, eating.isJunk)
       setFed(eating.id)
       setEating(null)
-      setMessage(randomMsg(eating.isJunk ? JUNK_MESSAGES : GOOD_MESSAGES))
+      setMessage(getPersonalizedFoodMessage(eating.isJunk, traits, lastGaugeDelta))
       setTimeout(() => onBack(), 1500)
     }
   }

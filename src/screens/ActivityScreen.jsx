@@ -20,6 +20,23 @@ const FUN_MESSAGES = {
   dessiner: 'Quel artiste ! 🎨',
 }
 
+function getPersonalizedActivityMessage(activityId, traits, delta) {
+  if (activityId === 'jouer' && traits.includes('Curieux')) return 'Il joue et explore partout ! 🎮🔍'
+  if (activityId === 'jouer' && traits.includes('Calin')) return `Il préfèrerait un câlin... 🎮😕 (bonheur ${delta?.bonheur})`
+  if (activityId === 'dormir' && traits.includes('Paresseux')) return `Son activité préférée ! 😴💤 +${delta?.bonheur} bonheur`
+  if (activityId === 'dormir' && traits.includes('Energique')) return 'Il dort mal, trop d energie ! ⚡😴'
+  if (activityId === 'courir' && traits.includes('Energique')) return `Il adore courir ! 🏃⚡ +${delta?.bonheur} bonheur`
+  if (activityId === 'courir' && traits.includes('Paresseux')) return `Il déteste ça... 🏃😩 (bonheur ${delta?.bonheur})`
+  if (activityId === 'courir' && traits.includes('Curieux')) return 'Pas son truc, trop répétitif. 🏃🥱'
+  if (activityId === 'danser' && traits.includes('Energique')) return 'Il danse comme une fusée ! 💃⚡'
+  if (activityId === 'danser' && traits.includes('Paresseux')) return 'Il traîne les pieds... 💃😒'
+  if (activityId === 'calin' && traits.includes('Calin')) return `Un énorme câlin ! Trop de bonheur ! 🤗💕 +${delta?.bonheur} bonheur`
+  if (activityId === 'lire' && traits.includes('Curieux')) return `Il dévore le livre ! 📚🔍 +${delta?.bonheur} bonheur`
+  if (activityId === 'dessiner' && traits.includes('Curieux')) return `Un chef-d oeuvre ! 🎨✨ +${delta?.bonheur} bonheur`
+  if (activityId === 'laver' && traits.includes('Tetu')) return 'Il résiste mais finit par obéir. 🛁😤'
+  return null
+}
+
 const GAME_MAP = {
   jouer: SimonGame,
   dormir: BerceGame,
@@ -31,7 +48,7 @@ const GAME_MAP = {
   dessiner: DessinerGame,
 }
 
-export default function ActivityScreen({ onDoActivity, onBack, isSleeping }) {
+export default function ActivityScreen({ onDoActivity, onBack, isSleeping, traits = [], lastGaugeDelta }) {
   const [message, setMessage] = useState(null)
   const [activeGame, setActiveGame] = useState(null)
   const [failMessage, setFailMessage] = useState(null)
@@ -47,7 +64,7 @@ export default function ActivityScreen({ onDoActivity, onBack, isSleeping }) {
 
   const applyActivity = (activity) => {
     onDoActivity(activity)
-    setMessage(FUN_MESSAGES[activity.id] || 'Super !')
+    setMessage(getPersonalizedActivityMessage(activity.id, traits, lastGaugeDelta) || FUN_MESSAGES[activity.id] || 'Super !')
     if (activity.id !== 'dormir') {
       setTimeout(() => onBack(), 1500)
     }
