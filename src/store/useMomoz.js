@@ -243,19 +243,23 @@ export function useMomoz() {
     setState((prev) => {
       if (!prev.momoz || prev.momoz.isSleeping) return prev
       const m = { ...prev.momoz, gauges: { ...prev.momoz.gauges } }
-      const healMult = getHealMultiplier(m.traits)
 
       if (isJunk) {
-        m.gauges.bonheur = clamp(m.gauges.bonheur + 30 * healMult)
-        m.gauges.faim = clamp(m.gauges.faim + 10 * healMult)
-        m.gauges.sante = clamp(m.gauges.sante - 15)
+        // Malbouffe — base
+        m.gauges.bonheur += 25
+        m.gauges.faim += 15
+        m.gauges.sante -= 20
         m.sessionScore += 1
         m.junkFoodStreak += 1
         m.goodFoodStreak = 0
 
-        // Gourmand: +3 bonheur supplémentaire sur junk food
+        // Modificateurs traits malbouffe
         if (m.traits.includes('Gourmand')) {
-          m.gauges.bonheur = clamp(m.gauges.bonheur + 3)
+          m.gauges.bonheur += 10
+          m.gauges.faim += 5
+        }
+        if (m.traits.includes('Tetu')) {
+          m.gauges.bonheur += 5
         }
 
         if (m.junkFoodStreak >= 3 && !m.isSick) {
@@ -263,14 +267,19 @@ export function useMomoz() {
           m.sickUntil = Date.now() + 24 * 60 * 60 * 1000
         }
       } else {
-        m.gauges.faim = clamp(m.gauges.faim + 15 * healMult)
-        m.gauges.sante = clamp(m.gauges.sante + 10 * healMult)
+        // Bonne bouffe — base
+        m.gauges.faim += 20
+        m.gauges.sante += 15
+        m.gauges.bonheur -= 5
         m.sessionScore += 5
         m.junkFoodStreak = 0
 
-        // Aliments sains : bonheur -10 (sauf Têtu qui ne change pas)
-        if (!m.traits.includes('Tetu')) {
-          m.gauges.bonheur = clamp(m.gauges.bonheur - 10)
+        // Modificateurs traits bonne bouffe
+        if (m.traits.includes('Gourmand')) {
+          m.gauges.bonheur -= 5
+        }
+        if (m.traits.includes('Tetu')) {
+          m.gauges.bonheur += 5
         }
 
         if (m.isSick) {
@@ -285,7 +294,11 @@ export function useMomoz() {
         }
       }
 
-      // Curieux bonus for specific foods (not applicable to food, only activities)
+      // Clamp all gauges
+      for (const g of ['faim', 'energie', 'bonheur', 'sante']) {
+        m.gauges[g] = clamp(m.gauges[g])
+      }
+
       m.lastUpdated = Date.now()
       const p = { ...prev.player, totalScore: prev.player.totalScore + (isJunk ? 1 : 5) }
       return { ...prev, momoz: m, player: p }
@@ -298,35 +311,55 @@ export function useMomoz() {
       const m = { ...prev.momoz, gauges: { ...prev.momoz.gauges } }
       const healMult = getHealMultiplier(m.traits)
 
+      // Apply base effects
       for (const [gauge, val] of Object.entries(activity.effects)) {
         const applied = val > 0 ? val * healMult : val
-        m.gauges[gauge] = clamp((m.gauges[gauge] || 0) + applied)
+        m.gauges[gauge] = (m.gauges[gauge] || 0) + applied
       }
 
-      // Énergique: +5 bonheur sur courir/danser
-      if (m.traits.includes('Energique') && (activity.id === 'courir' || activity.id === 'danser')) {
-        m.gauges.bonheur = clamp(m.gauges.bonheur + 5)
+      // Trait modifiers on activities
+      if (m.traits.includes('Energique')) {
+        if (activity.id === 'courir' || activity.id === 'danser') {
+          m.gauges.bonheur += 10
+        }
+        if (activity.id === 'dormir' && activity.effects.energie) {
+          // Undo base energy effect then apply 80%
+          const baseEnergy = activity.effects.energie > 0 ? activity.effects.energie * healMult : activity.effects.energie
+          m.gauges.energie -= baseEnergy
+          m.gauges.energie += baseEnergy * 0.8
+        }
       }
 
-      // Paresseux: -10 bonheur sur courir
-      if (m.traits.includes('Paresseux') && activity.id === 'courir') {
-        m.gauges.bonheur = clamp(m.gauges.bonheur - 10)
+      if (m.traits.includes('Paresseux')) {
+        if (activity.id === 'courir') m.gauges.bonheur -= 15
+        if (activity.id === 'danser') m.gauges.bonheur -= 5
+        if (activity.id === 'dormir') m.gauges.bonheur += 10
       }
 
-      // Câlin: +5 bonheur sur câlin
-      if (m.traits.includes('Calin') && activity.id === 'calin') {
-        m.gauges.bonheur = clamp(m.gauges.bonheur + 5)
+      if (m.traits.includes('Calin')) {
+        if (activity.id === 'calin') m.gauges.bonheur += 15
+        if (activity.id === 'jouer') m.gauges.bonheur -= 5
       }
 
-      // Curieux: +10 bonheur sur lire/dessiner
-      if (m.traits.includes('Curieux') && (activity.id === 'lire' || activity.id === 'dessiner')) {
-        m.gauges.bonheur = clamp(m.gauges.bonheur + 10)
+      if (m.traits.includes('Tetu')) {
+        if (activity.id === 'laver' || activity.id === 'dormir') m.gauges.bonheur -= 5
       }
 
       let pts = activity.points
-      if (m.traits.includes('Curieux') && (activity.id === 'lire' || activity.id === 'dessiner')) {
-        pts += 5
+      if (m.traits.includes('Curieux')) {
+        if (activity.id === 'lire' || activity.id === 'dessiner') {
+          m.gauges.bonheur += 10
+          pts += 5
+        }
+        if (activity.id === 'jouer') m.gauges.bonheur += 5
+        if (activity.id === 'courir') m.gauges.bonheur -= 5
       }
+
+      // Clamp all gauges
+      for (const g of ['faim', 'energie', 'bonheur', 'sante']) {
+        m.gauges[g] = clamp(m.gauges[g])
+      }
+
       m.sessionScore += pts
 
       // Sleep

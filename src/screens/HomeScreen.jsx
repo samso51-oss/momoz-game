@@ -5,7 +5,7 @@ import ScoreDisplay from '../components/ScoreDisplay.jsx'
 
 const STAGE_NAMES = ['Bébé', 'Ado', 'Adulte', 'Vieux']
 
-export default function HomeScreen({ state, refreshState, onNavigate }) {
+export default function HomeScreen({ state, refreshState, onNavigate, gaugeDeltas }) {
   const { player, momoz } = state
 
   useEffect(() => {
@@ -41,10 +41,10 @@ export default function HomeScreen({ state, refreshState, onNavigate }) {
       </div>
 
       <div className="gauges">
-        <GaugeBar label="Faim" value={momoz.gauges.faim} emoji="🍖" />
-        <GaugeBar label="Énergie" value={momoz.gauges.energie} emoji="⚡" />
-        <GaugeBar label="Bonheur" value={momoz.gauges.bonheur} emoji="😊" />
-        <GaugeBar label="Santé" value={momoz.gauges.sante} emoji="❤️" />
+        <GaugeBar label="Faim" value={momoz.gauges.faim} emoji="🍖" delta={gaugeDeltas?.faim} />
+        <GaugeBar label="Énergie" value={momoz.gauges.energie} emoji="⚡" delta={gaugeDeltas?.energie} />
+        <GaugeBar label="Bonheur" value={momoz.gauges.bonheur} emoji="😊" delta={gaugeDeltas?.bonheur} />
+        <GaugeBar label="Santé" value={momoz.gauges.sante} emoji="❤️" delta={gaugeDeltas?.sante} />
       </div>
 
       <div className="action-bar">

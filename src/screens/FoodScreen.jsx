@@ -2,15 +2,15 @@ import { useState, useMemo, useEffect, useRef } from 'react'
 import { goodFood, junkFood } from '../data/foods.js'
 
 const GOOD_MESSAGES = [
-  'Miam ! Ton Momoz adore ça ! 😋',
-  'Trop bon ! Ton Momoz se régale ! 🥰',
+  'Miam ! Ton Momoz adore ca ! 😋',
+  'Trop bon ! Ton Momoz se regale ! 🥰',
   'Super choix ! Ton Momoz est content ! ✨',
-  'Mmmh un délice ! Ton Momoz te remercie ! 🤩',
+  'Mmmh un delice ! Ton Momoz te remercie ! 🤩',
 ]
 
 const JUNK_MESSAGES = [
-  'Mmmh délicieux... mais pas très sage 😅',
-  'Ton Momoz est ravi... mais sa santé trinque 🍔',
+  'Mmmh delicieux... mais pas tres sage 😅',
+  'Ton Momoz est ravi... mais sa sante trinque 🍔',
   'Interdit mais tellement bon ! 😈',
   'Un petit plaisir coupable ! 🤫',
 ]
@@ -44,7 +44,6 @@ export default function FoodScreen({ onFeed, onBack }) {
   const resetIdleTimer = () => {
     if (idleTimerRef.current) clearTimeout(idleTimerRef.current)
     idleTimerRef.current = setTimeout(() => {
-      // Timeout - cancel eating
       setEating(null)
       setTapProgress(0)
     }, IDLE_TIMEOUT)

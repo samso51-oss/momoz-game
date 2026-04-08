@@ -8,7 +8,6 @@ import PageGame from '../components/minigames/PageGame.jsx'
 import DanseGame from '../components/minigames/DanseGame.jsx'
 import CalinGame from '../components/minigames/CalinGame.jsx'
 import DessinerGame from '../components/minigames/DessinerGame.jsx'
-import DeltaDisplay from '../components/DeltaDisplay.jsx'
 
 const FUN_MESSAGES = {
   jouer: 'Ton Momoz s\'eclate ! 🎮',
@@ -32,40 +31,26 @@ const GAME_MAP = {
   dessiner: DessinerGame,
 }
 
-export default function ActivityScreen({ onDoActivity, onBack, isSleeping, getGauges }) {
+export default function ActivityScreen({ onDoActivity, onBack, isSleeping }) {
   const [message, setMessage] = useState(null)
-  const [activeGame, setActiveGame] = useState(null) // { activity, Component }
+  const [activeGame, setActiveGame] = useState(null)
   const [failMessage, setFailMessage] = useState(null)
-  const [delta, setDelta] = useState(null) // { before, after }
-  const gaugesBeforeRef = useRef(null)
 
   const handleActivity = (activity) => {
     const GameComponent = GAME_MAP[activity.id]
     if (GameComponent) {
-      gaugesBeforeRef.current = getGauges()
       setActiveGame({ activity, Component: GameComponent })
       return
     }
-    // Fallback: apply directly
     applyActivity(activity)
   }
 
   const applyActivity = (activity) => {
-    const before = gaugesBeforeRef.current || getGauges()
     onDoActivity(activity)
-    // Small delay to let state update, then read new gauges
-    setTimeout(() => {
-      const after = getGauges()
-      setDelta({ before, after })
-      setMessage(FUN_MESSAGES[activity.id] || 'Super !')
-      if (activity.id !== 'dormir') {
-        setTimeout(() => {
-          setMessage(null)
-          setDelta(null)
-          onBack()
-        }, 2000)
-      }
-    }, 50)
+    setMessage(FUN_MESSAGES[activity.id] || 'Super !')
+    if (activity.id !== 'dormir') {
+      setTimeout(() => onBack(), 1500)
+    }
   }
 
   const handleGameSuccess = () => {
@@ -85,7 +70,6 @@ export default function ActivityScreen({ onDoActivity, onBack, isSleeping, getGa
     const { Component, activity } = activeGame
     const props = { onSuccess: handleGameSuccess }
 
-    // RunnerGame uses onFail, others use onFailure
     if (activity.id === 'courir') {
       props.onFail = () => handleGameFail('Rate ! Reessaie')
     } else {
@@ -113,10 +97,9 @@ export default function ActivityScreen({ onDoActivity, onBack, isSleeping, getGa
         <div className="activity-message">
           <p>{message}</p>
           {message.includes('dormir') && (
-            <button className="btn btn-primary" onClick={() => { setDelta(null); onBack() }}>OK</button>
+            <button className="btn btn-primary" onClick={onBack}>OK</button>
           )}
         </div>
-        {delta && <DeltaDisplay before={delta.before} after={delta.after} />}
       </div>
     )
   }
