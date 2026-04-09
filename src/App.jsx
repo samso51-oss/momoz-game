@@ -17,6 +17,7 @@ export default function App() {
     feedMomoz,
     doActivity,
     handleDeath,
+    startNightMode,
     refreshState,
     clearGaugeDelta,
   } = useMomoz()
@@ -164,6 +165,7 @@ export default function App() {
         refreshState={refreshState}
         onNavigate={navigate}
         gaugeDeltas={state.lastGaugeDelta}
+        startNightMode={startNightMode}
       />
     </div>
   )

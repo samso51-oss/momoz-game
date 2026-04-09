@@ -76,13 +76,40 @@ function applyDecay(momoz) {
   const hours = (now - momoz.lastUpdated) / (1000 * 60 * 60)
   if (hours <= 0) return momoz
 
+  // Night mode auto-expiry
+  let isNightMode = momoz.isNightMode || false
+  let nightStart = momoz.nightStart || null
+  let nightEnd = momoz.nightEnd || null
+  if (isNightMode && nightEnd && now >= nightEnd) {
+    isNightMode = false
+    nightStart = null
+    nightEnd = null
+  }
+
+  // Compute night mode multiplier for the elapsed period
+  let nightMult = 1
+  if (isNightMode && nightEnd) {
+    // Entire period is in night mode
+    nightMult = 0.2
+  }
+
+  // Veille automatique: if delta > 4h and not in night mode, split decay
+  const VEILLE_THRESHOLD_HOURS = 4
   const sickMult = momoz.isSick ? 2 : 1
   const oldGauges = { ...momoz.gauges }
   const gauges = { ...momoz.gauges }
 
   for (const gauge of ['faim', 'energie', 'bonheur', 'sante']) {
     const traitMult = getTraitMultiplier(momoz.traits, gauge)
-    const decay = DECAY_PER_HOUR[gauge] * hours * traitMult * sickMult
+    let decay
+    if (!isNightMode && hours > VEILLE_THRESHOLD_HOURS) {
+      // First 4h at normal rate, rest at ×0.33
+      const normalDecay = DECAY_PER_HOUR[gauge] * VEILLE_THRESHOLD_HOURS * traitMult * sickMult
+      const slowDecay = DECAY_PER_HOUR[gauge] * (hours - VEILLE_THRESHOLD_HOURS) * traitMult * sickMult * 0.33
+      decay = normalDecay + slowDecay
+    } else {
+      decay = DECAY_PER_HOUR[gauge] * hours * traitMult * sickMult * nightMult
+    }
     gauges[gauge] = clamp(gauges[gauge] - decay)
   }
 
@@ -136,6 +163,9 @@ function applyDecay(momoz) {
     sickUntil,
     isSleeping,
     sleepUntil,
+    isNightMode,
+    nightStart,
+    nightEnd,
     stage: Math.min(newStage, 3),
     sessionScore,
     lastUpdated: now,
@@ -431,6 +461,22 @@ export function useMomoz() {
     })
   }, [setState])
 
+  const startNightMode = useCallback((hours) => {
+    setState((prev) => {
+      if (!prev.momoz) return prev
+      const now = Date.now()
+      return {
+        ...prev,
+        momoz: {
+          ...prev.momoz,
+          isNightMode: true,
+          nightStart: now,
+          nightEnd: now + hours * 3600000,
+        },
+      }
+    })
+  }, [setState])
+
   const refreshState = useCallback(() => {
     setState((prev) => {
       if (!prev.momoz) return prev
@@ -458,6 +504,7 @@ export function useMomoz() {
     feedMomoz,
     doActivity,
     handleDeath,
+    startNightMode,
     refreshState,
     computeDaysAlive,
     getGauges,
